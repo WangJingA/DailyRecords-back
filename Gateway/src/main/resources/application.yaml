@@ -1,0 +1,41 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: RecordGateway
+  cloud:
+    circuitbreaker:
+      hystrix:
+        enabled: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      # 路由规则,统一网关，前端访问匹配，将其他模块的服务最为id名
+      routes:
+        - id: RecordUser
+          #lb表示负载均衡
+          uri: http://localhost:8081
+          predicates:
+            - Path=/record/user/**
+        - id: Records
+          uri: http://localhost:8082
+          predicates:
+            - Path=/record/records/**
+        - id: memorandum
+          uri: http://localhost:8083
+          predicates:
+            - Path=/record/memorandum/**
+eureka:
+  instance:
+    hostname: 127.0.0.1
+  client:
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:8087/eureka
+    fetch-registry: false
+    register-with-eureka: true
+ribbon:
+  #指的是建立连接所用的时间，适用于网络状况正常的情况下,两端连接所用的时间
+  ReadTimeout: 5000
+  #指的是建立连接后从服务器读取到可用资源所用的时间
+  ConnectTimeout: 5000
